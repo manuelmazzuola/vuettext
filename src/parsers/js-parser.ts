@@ -3,6 +3,8 @@ import dynamicImport from 'acorn-dynamic-import'
 
 import {ParserBase, SourceStringMetadataList} from '../common/parser-base'
 
+const classFields = require('acorn-class-fields')
+
 interface Property {
   name: string
 }
@@ -57,7 +59,7 @@ export class JsParser extends ParserBase {
   }
 
   parse() {
-    this.ast = Parser.extend(dynamicImport).parse(typeof this.content === 'string' ? this.content : '', {
+    this.ast = Parser.extend(dynamicImport, classFields).parse(typeof this.content === 'string' ? this.content : '', {
       ecmaVersion: 9,
       sourceType: 'module',
       locations: true,
