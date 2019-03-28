@@ -33,13 +33,15 @@ interface RootNode extends Node {
 interface ChildNode extends Node {
   body?: ChildNode | ChildNode[]
   declaration?: ChildNode
+  declarations?: ChildNode[]
   properties?: ChildNode[]
   value?: ChildNode
   argument?: any
   test?: any
   expression?: any
   // tslint:disable-next-line:no-banned-terms
-  callee?: any
+  callee?: any,
+  init?: any
 }
 
 // Child node body type guard
@@ -69,7 +71,11 @@ export class JsParser extends ParserBase {
 
   parseNode(node: ChildNode): SourceStringMetadataList {
     let result = {}
-    if (node.declaration) {
+    if (node.declarations) {
+      node.declarations.forEach(declaration => {
+        result = {...result, ...this.parseNode(declaration)}
+      })
+    } else if (node.declaration) {
       result = {...result, ...this.parseNode(node.declaration)}
     } else if (node.properties) {
       node.properties.forEach(childNode => {
@@ -123,6 +129,8 @@ export class JsParser extends ParserBase {
           result = {...result, ...this.parseExpression(expression)}
         })
       }
+    } else if (node.init && node.init.callee) {
+      result = {...result, ...this.parseExpression(node.init)}
     } else if (node.expression && node.expression.callee) {
       result = {...result, ...this.parseExpression(node.expression)}
     } else if (node.expression && node.expression.type === 'AssignmentExpression') {
