@@ -1,4 +1,5 @@
-import {Node, parse, Token} from 'acorn/dist/acorn'
+import {Node, Parser, Token} from 'acorn'
+import dynamicImport from 'acorn-dynamic-import'
 
 import {ParserBase, SourceStringMetadataList} from '../common/parser-base'
 
@@ -54,7 +55,7 @@ export class JsParser extends ParserBase {
   }
 
   parse() {
-    this.ast = parse(typeof this.content === 'string' ? this.content : '', {
+    this.ast = Parser.extend(dynamicImport).parse(typeof this.content === 'string' ? this.content : '', {
       ecmaVersion: 9,
       sourceType: 'module',
       locations: true,
